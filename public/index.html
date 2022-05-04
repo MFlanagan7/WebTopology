@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="defaults.css" rel="stylesheet">
+    <link href="index.css" rel="stylesheet">
+    <link href="./viewpage/styles/modal.css" rel="stylesheet">
+
+    <title>Web Topology</title>
+  </head>
+  <body>
+  
+    <header>
+        <nav>
+          <div class="logo">
+            <a href="/">
+              <img src="./img/logo.png" alt="Site Logo" height="40px" width="40px">
+            </a>
+            <a href="/">
+              <h1>Web Topology Tool</h1>
+            </a>
+          </div>
+          
+          <div class="nav-links">
+            <ul>
+              <li><a href="/" class="nav-link px-2 text-secondary">Home</a></li>
+              <li>|</li>
+              <li><a href="/maps" class="nav-link px-2 text-secondary">Maps</a></li>
+              <li>|</li>
+              <li><a href="/rack_menus" class="nav-link px-2 text-white">Rack Menus</a></li>
+              <li>|</li>
+              <li><a href="/admin" class="nav-link px-2 text-secondary">Admin</a></li>
+            </ul>
+          </div>
+          <form>
+            <input type="search" placeholder="Search..." aria-label="Search">
+          </form>
+  
+          <div class="text-end">
+            <!-- <button type="button" class="btn btn-outline-light me-2">Login</button> -->
+            <button id="button-signout" type="button" class="post-auth">
+              Sign Out</button>
+            <!-- <button type="button" class="btn btn-warning">Sign-up</button> -->
+          </div>
+        </nav>
+    </header>
+    <main>
+      <div>
+        <form id="form-signin" class="pre-auth">
+          <h3>Sign in, Please!</h3>
+          <div>
+            <input type="email" id="email" placeholder="email">
+          </div>
+          <div>
+            <input type="password" id="password" placeholder="password">
+          </div>
+          <button type="submit" >Sign In</button>
+        </form>
+        <p class="pre-auth">Log in as <a id="test-account-link" href="">Test User Account</a></p>
+      </div>
+
+      <div class="post-auth" id="root"></div>
+    </main>
+  
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+    
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyB9Cjf0czOkC2VRKBq6XOzH4K1GLvJRtDU",
+        authDomain: "webtopology-7a8a3.firebaseapp.com",
+        projectId: "webtopology-7a8a3",
+        storageBucket: "webtopology-7a8a3.appspot.com",
+        messagingSenderId: "136130666307",
+        appId: "1:136130666307:web:780e30254c30278fa659f6"
+      };
+    
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+    </script>
+
+    <script type="module" src="app.js"></script>
+
+  </body>
+</html>
