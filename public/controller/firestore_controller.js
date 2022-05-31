@@ -9,9 +9,14 @@ const db = getFirestore();
 // 	await setDoc(doc(db, Constants.COLLECTION, Constants.DOCNAME_LEDS), Constants.docLEDs);
 // }
 
-export async function updateRackDoc(rack) {
-	const docRef = doc(db, Constants.COLLECTION, Constants.collectionNames.RACKS);
-	await updateDoc(docRef, update);
+export async function updateRackDoc(rack, docid) {
+	const docRef = doc(db, Constant.collectionNames.RACKS, docid);
+	await updateDoc(docRef, rack);
+}
+
+export async function updateDeviceDoc(device, docid) {
+	const docRef = doc(db, Constant.collectionNames.DEVICES, docid);
+	await updateDoc(docRef, device);
 }
 
 export function attachRealtimeListener(collection, document, callback) {
@@ -38,7 +43,11 @@ export async function getRackList() {
     let rackList = [];
 	const querySnapshot = await getDocs(collection(db, Constant.collectionNames.RACKS));
 	querySnapshot.forEach( (doc) => {
-		rackList.push(doc.data());
+		let newDoc = new Object;
+		newDoc.id = doc.id;
+		newDoc.data = doc.data();
+		console.log(newDoc);
+		rackList.push(newDoc);
 	})
     return rackList.sort(Utils.compare);
 }
@@ -47,7 +56,11 @@ export async function getDeviceList() {
     let deviceList = [];
 	const querySnapshot = await getDocs(collection(db, Constant.collectionNames.DEVICES));
 	querySnapshot.forEach( (doc) => {
-		deviceList.push(doc.data());
+		let newDoc = new Object;
+		newDoc.id = doc.id;
+		newDoc.data = doc.data();
+		console.log(newDoc);
+		deviceList.push(newDoc);
 	})
 	// console.log(deviceList)
     return deviceList.sort(Utils.compare);

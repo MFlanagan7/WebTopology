@@ -11,6 +11,11 @@ export class Device {
         this.ID = ID;
         this.installed = null;
         this.connections = [];
+
+        this.connections[0] = null;
+        for (let i = 1; i <= numPorts; i++) {
+            this.connections[i] = 'Empty';
+        }
     }
 
     toString() {
@@ -33,9 +38,8 @@ export class Device {
             alert(rack.name + ' ' + slotNum + ' is already occupied!');
             return;
         } else {
-            this.installed = rack;
+            this.installed = rack.name;
             rack.devices[slotNum] = this;
-            Firebase
         }
     }
 
@@ -52,6 +56,7 @@ export class Device {
             model: this.model,
             deviceType: this.deviceType,
             ID: this.ID,
+            installed: this.installed,
             connections: this.connections,
         }
     }

@@ -104,6 +104,11 @@ td {
     padding: 2px;
 }
 
+.header {
+    font-weight: bold;
+    column-span: all;
+}
+
 .home-page {
     font-size: medium;
 }

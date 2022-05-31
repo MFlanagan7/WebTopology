@@ -54,8 +54,8 @@ export async function rack_menus_page() {
   Device2.addConnection(Connection1, 15);
   
 
-  console.log(Room1);
-  console.log(Rack1);
+  // console.log(Room1);
+  // console.log(Rack1);
   // console.log(Device1);
   // console.log(Device2);
   // console.log(Connection1);
@@ -142,8 +142,7 @@ export async function rack_menus_page() {
 
                 <form id="form-new-connection">
                     <span id="device1-span">
-                        <label for="connection-device1">Device 1</label>
-                        <input type="text" id="connection-device1" name="connection-device1">
+                        
                     </span>
 
                     <span>
@@ -152,8 +151,7 @@ export async function rack_menus_page() {
                     </span>
 
                     <span id="device2-span">
-                        <label for="connection-device2">Device 2</label>
-                        <input type="text" id="connection-device2" name="connection-device2">
+                        
                     </span>
 
                     <span>
@@ -161,11 +159,45 @@ export async function rack_menus_page() {
                         <input type="text" id="connection-port2" name="connection-port2">
                     </span>
                 </form>
+
+                <form id="form-install-device">
+                  <input id="install-rack-name" type="hidden" value="">
+
+                  <span id="install-device-span">
+                    <label for="install-device">Device</label>
+                    <input type="text" id="install-device" name="install-device">
+                  </span>
+
+                  <span>
+                    <label for="install-front-rear">Side</label>
+                    <select id="install-front-rear">
+                      <option value="front">Front</option>
+                      <option value="rear">Rear</option>
+                    </select>
+                  </span>
+
+                  <span id="install-rack-slot-span">
+                    <label for="install-rack-slot">Rack Port</label>
+                    <input type="text" id="install-rack-slot" name="install-rack-slot">
+                  </span>
+                </form>
+
+                <form id="form-uninstall-device">
+                  <input id="uninstall-rack-name" type="hidden" value="">
+
+                  <span id="uninstall-device-span">
+                    <label for="uninstall-device">Device</label>
+                    <input type="text" id="uninstall-device" name="uninstall-device">
+                  </span>
+
+                </form>
             </div>
             <div class="modal-footer">
                     <button id="button-create-new-rack">Create Rack</button>
                     <button id="button-create-new-device">Create Device</button>
                     <button id="button-create-new-connection">Create Connection</button>
+                    <button id="button-install-device">Install Device</button>
+                    <button id="button-uninstall-device">Uninstall Device</button>
                 </form>
             </div>
         </div>
@@ -177,7 +209,7 @@ export async function rack_menus_page() {
 
     // populate main-content div with rack data from firestore
     const racks = await Firestore.getRackList();
-    // const devices = await Firestore.getDeviceList();
+    const devices = await Firestore.getDeviceList();
 
     const mainContentDiv = document.getElementById('main-content');
 
@@ -188,6 +220,116 @@ export async function rack_menus_page() {
       mainContentDiv.innerHTML += mainContentHTML;
     }));
 
+
+    racks.forEach( (rack => {
+      // add event listeners for buttons
+      const addDeviceButton = document.getElementById(`button-add-device-${rack.data.name}`);
+      // console.log(addDeviceButton);
+      addDeviceButton.addEventListener('click', async (e) => {
+
+        // When the user clicks the install device button, open the modal 
+        const title = document.getElementById('modal-title');
+        const rackForm = document.getElementById('form-new-rack');
+        const deviceForm = document.getElementById('form-new-device');
+        const connectionForm = document.getElementById('form-new-connection');
+        const installForm = document.getElementById('form-install-device');
+        const uninstallForm = document.getElementById('form-uninstall-device');
+        const rackButton = document.getElementById('button-create-new-rack');
+        const deviceButton = document.getElementById('button-create-new-device');
+        const connectionButton = document.getElementById('button-create-new-connection');
+        const installButton = document.getElementById('button-install-device');
+        const uninstallButton = document.getElementById('button-uninstall-device');
+        
+        const installFormHiddenField = document.getElementById('install-rack-name');
+        installFormHiddenField.value = rack.data.name;
+
+        const installDeviceSpan = document.getElementById('install-device-span');
+        const installRackPortSpan = document.getElementById('install-rack-slot-span');
+        // TODO: get only uninstalled devices instead of all devices
+        let devices = await Firestore.getDeviceList();
+        console.log(devices);
+
+        // filter devices array, return only uninstalled devices
+        devices = devices.filter(device => !device.data.installed);
+
+        let html = `<label>Device</label><select id='install-device-list'>`;
+        html += buildDeviceInputs(devices);
+        html += `</select>`;
+        installDeviceSpan.innerHTML = html;
+
+        // TODO: loop over front and rear sides instead of just numSlots
+        // AND
+        // only display the slot number if it doesnt have a device already installed 
+        // possibly list slot number along with either " - empty" or installed device inside the select list
+        html = `<label>Rack Port</label><select id='install-rack-ports'>`;
+        for (let i = 1; i <= rack.data.numSlots; i++) {
+          html += `<option value='${i}'>${i}</option>`;
+        }
+        html += `</select>`;
+        installRackPortSpan.innerHTML = html;
+
+        title.innerHTML = `Install a Device into ${rack.data.name}`;
+        connectionForm.style.display = 'none';
+        connectionButton.style.display = 'none';
+        deviceForm.style.display = 'none';
+        deviceButton.style.display = 'none';
+        rackForm.style.display = 'none';
+        rackButton.style.display = 'none';
+        installForm.style.display = 'flex';
+        installButton.style.display = 'block';
+        uninstallForm.style.display = 'none';
+        uninstallButton.style.display = 'none';
+        modal.style.display = "block";
+      });
+
+      const removeDeviceButton = document.getElementById(`button-remove-device-${rack.data.name}`);
+      // console.log(removeDeviceButton);
+      removeDeviceButton.addEventListener('click', async (e) => {
+
+        // When the user clicks the uninstall device button, open the modal 
+        const title = document.getElementById('modal-title');
+        const rackForm = document.getElementById('form-new-rack');
+        const deviceForm = document.getElementById('form-new-device');
+        const connectionForm = document.getElementById('form-new-connection');
+        const installForm = document.getElementById('form-install-device');
+        const uninstallForm = document.getElementById('form-uninstall-device');
+        const rackButton = document.getElementById('button-create-new-rack');
+        const deviceButton = document.getElementById('button-create-new-device');
+        const connectionButton = document.getElementById('button-create-new-connection');
+        const installButton = document.getElementById('button-install-device');
+        const uninstallButton = document.getElementById('button-uninstall-device');
+
+        const uninstallFormHiddenField = document.getElementById('uninstall-rack-name');
+        uninstallFormHiddenField.value = rack.data.name;
+
+        const uninstallDeviceSpan = document.getElementById('uninstall-device-span');
+        // const uninstallRackPortSpan = document.getElementById('uninstall-rack-slot-span');
+        // TODO: get only devices installed in the rack
+        let devices = await Firestore.getDeviceList();
+
+        // filter devices array, return only installed devices
+        devices = devices.filter(device => device.data.installed === rack.data.name);
+        console.log(devices);
+
+        let html = `<label>Device</label><select id='uninstall-device-list'>`;
+        html += buildDeviceInputs(devices);
+        html += `</select>`;
+        uninstallDeviceSpan.innerHTML = html;
+
+        title.innerHTML = `Uninstall a Device from ${rack.data.name}`;
+        connectionForm.style.display = 'none';
+        connectionButton.style.display = 'none';
+        deviceForm.style.display = 'none';
+        deviceButton.style.display = 'none';
+        rackForm.style.display = 'none';
+        rackButton.style.display = 'none';
+        installForm.style.display = 'none';
+        installButton.style.display = 'none';
+        uninstallForm.style.display = 'flex';
+        uninstallButton.style.display = 'block';
+        modal.style.display = "block";
+      });
+    }));
     
 
     // Get the modal
@@ -207,9 +349,13 @@ export async function rack_menus_page() {
       const rackForm = document.getElementById('form-new-rack');
       const deviceForm = document.getElementById('form-new-device');
       const connectionForm = document.getElementById('form-new-connection');
+      const installForm = document.getElementById('form-install-device');
+      const uninstallForm = document.getElementById('form-uninstall-device');
       const rackButton = document.getElementById('button-create-new-rack');
       const deviceButton = document.getElementById('button-create-new-device');
       const connectionButton = document.getElementById('button-create-new-connection');
+      const installButton = document.getElementById('button-install-device');
+      const uninstallButton = document.getElementById('button-uninstall-device');
       title.innerHTML = 'Add a New Rack';
       connectionForm.style.display = 'none';
       connectionButton.style.display = 'none';
@@ -217,6 +363,10 @@ export async function rack_menus_page() {
       deviceButton.style.display = 'none';
       rackForm.style.display = 'flex';
       rackButton.style.display = 'block';
+      installForm.style.display = 'none';
+      installButton.style.display = 'none';
+      uninstallForm.style.display = 'none';
+      uninstallButton.style.display = 'none';
       modal.style.display = "block";
     }
 
@@ -226,9 +376,13 @@ export async function rack_menus_page() {
       const rackForm = document.getElementById('form-new-rack');
       const deviceForm = document.getElementById('form-new-device');
       const connectionForm = document.getElementById('form-new-connection');
+      const installForm = document.getElementById('form-install-device');
+      const uninstallForm = document.getElementById('form-uninstall-device');
       const rackButton = document.getElementById('button-create-new-rack');
       const deviceButton = document.getElementById('button-create-new-device');
       const connectionButton = document.getElementById('button-create-new-connection');
+      const installButton = document.getElementById('button-install-device');
+      const uninstallButton = document.getElementById('button-uninstall-device');
       title.innerHTML = 'Add a New Device';
       connectionForm.style.display = 'none';
       connectionButton.style.display = 'none';
@@ -236,6 +390,10 @@ export async function rack_menus_page() {
       deviceButton.style.display = 'block';
       rackForm.style.display = 'none';
       rackButton.style.display = 'none';
+      installForm.style.display = 'none';
+      installButton.style.display = 'none';
+      uninstallForm.style.display = 'none';
+      uninstallButton.style.display = 'none';
       modal.style.display = "block";
     }
 
@@ -245,9 +403,13 @@ export async function rack_menus_page() {
       const rackForm = document.getElementById('form-new-rack');
       const deviceForm = document.getElementById('form-new-device');
       const connectionForm = document.getElementById('form-new-connection');
+      const installForm = document.getElementById('form-install-device');
+      const uninstallForm = document.getElementById('form-uninstall-device');
       const rackButton = document.getElementById('button-create-new-rack');
       const deviceButton = document.getElementById('button-create-new-device');
       const connectionButton = document.getElementById('button-create-new-connection');
+      const installButton = document.getElementById('button-install-device');
+      const uninstallButton = document.getElementById('button-uninstall-device');
       const device1Span = document.getElementById('device1-span');
       const device2Span = document.getElementById('device2-span');
       const devices = await Firestore.getDeviceList();
@@ -269,6 +431,10 @@ export async function rack_menus_page() {
       deviceButton.style.display = 'none';
       rackForm.style.display = 'none';
       rackButton.style.display = 'none';
+      installForm.style.display = 'none';
+      installButton.style.display = 'none';
+      uninstallForm.style.display = 'none';
+      uninstallButton.style.display = 'none';
       modal.style.display = "block";
     }
 
@@ -365,6 +531,122 @@ export async function rack_menus_page() {
       
     })
 
+    // install device into rack
+    const installDeviceButton = document.getElementById('button-install-device');
+    installDeviceButton.addEventListener('click', async e => {
+        e.preventDefault();
+        const rackName = document.getElementById('install-rack-name').value;
+        const device = document.getElementById('install-device-list').value;
+        const side = document.getElementById('install-front-rear').value;
+        const rackSlot = document.getElementById('install-rack-ports').value;
+        console.log(rackName + "\n" + device + "\n" + rackSlot);
+
+        // update newRack with updates and test
+        if (rackName && device && rackSlot) {
+          let rackToUpdate;
+
+          racks.forEach(rack => {
+            if (rack.data.name === rackName) {
+              rackToUpdate = rack;
+              console.log(rackToUpdate);
+            }
+          });
+          let newRack = new Rack(rackName, rackToUpdate.data.description, rackToUpdate.data.room, rackToUpdate.data.numSlots);
+          newRack.frontRackDevices = rackToUpdate.data.frontRackDevices;
+          newRack.rearRackDevices = rackToUpdate.data.rearRackDevices;
+          
+
+          let deviceToUpdate;
+          let deviceID;
+          devices.forEach(dev => {
+            if (dev.data.name === device) {
+              deviceToUpdate = dev;
+              deviceID = deviceToUpdate.id;
+              console.log(deviceToUpdate);
+            }
+          })
+
+          let newDevice = new Device(deviceToUpdate.data.name, deviceToUpdate.data.description, deviceToUpdate.data.numPorts, 
+            deviceToUpdate.data.make, deviceToUpdate.data.model, deviceToUpdate.data.deviceType, deviceToUpdate.data.ID)
+            newDevice.installed = newRack.name;
+          
+          newRack.addDevice(newDevice.name, side, rackSlot);
+          
+          try {
+            console.log(newRack);
+            console.log(newDevice);
+            let doc = await Firestore.updateRackDoc(newRack.serialize(), rackToUpdate.id);
+            doc = await Firestore.updateDeviceDoc(newDevice.serialize(), deviceID);
+            
+            console.log(device + " installed into " + rackToUpdate.id + " in " + side + " slot " + rackSlot);
+            alert(rackName + ' updated!\n' + newDevice.name + ' updated!');
+            window.location.href = "/rack_menus";
+
+          } catch (e) {
+            if (Constants.DEV === true)
+              console.log(e);
+          }
+        }
+        
+    })
+
+    // uninstall device from rack
+    const uninstallDeviceButton = document.getElementById('button-uninstall-device');
+    uninstallDeviceButton.addEventListener('click', async e => {
+        e.preventDefault();
+        const rackName = document.getElementById('uninstall-rack-name').value;
+        const device = document.getElementById('uninstall-device-list').value;
+        console.log(rackName + "\n" + device);
+
+        // update newRack with updates and test
+        if (rackName && device) {
+          let rackToUpdate;
+
+          racks.forEach(rack => {
+            if (rack.data.name === rackName) {
+              rackToUpdate = rack;
+              console.log(rackToUpdate);
+            }
+          });
+          let newRack = new Rack(rackName, rackToUpdate.data.description, rackToUpdate.data.room, rackToUpdate.data.numSlots);
+          newRack.frontRackDevices = rackToUpdate.data.frontRackDevices;
+          newRack.rearRackDevices = rackToUpdate.data.rearRackDevices;
+
+          let deviceToUpdate;
+          let deviceID;
+          devices.forEach(dev => {
+            if (dev.data.name === device) {
+              deviceToUpdate = dev;
+              deviceID = deviceToUpdate.id;
+              console.log(deviceToUpdate);
+            }
+          })
+
+          let newDevice = new Device(deviceToUpdate.data.name, deviceToUpdate.data.description, deviceToUpdate.data.numPorts, 
+            deviceToUpdate.data.make, deviceToUpdate.data.model, deviceToUpdate.data.deviceType, deviceToUpdate.data.ID)
+            newDevice.installed = null;
+
+          console.log(newDevice);
+          newRack.removeDevice(newDevice);
+
+          console.log(newRack);
+          
+          try {
+            console.log(newRack)
+            let doc = await Firestore.updateRackDoc(newRack.serialize(), rackToUpdate.id);
+            doc = await Firestore.updateDeviceDoc(newDevice.serialize(), deviceID);
+            console.log(device + " uninstalled from " + rackToUpdate.id);
+            alert(rackName + ' updated!');
+            window.location.href = "/rack_menus";
+
+          } catch (e) {
+            if (Constants.DEV === true)
+              console.log(e);
+          }
+        }
+        
+    })
+
   // const statusMonitorButton = document.getElementById('button-monitor-button-status');
   // statusMonitorButton.addEventListener('click', e => {
   //   const label = e.target.innerHTML;
@@ -397,42 +679,44 @@ export async function rack_menus_page() {
 
 }
 
-function buttonListener(doc) {
-  const status1 = document.getElementById('status-button1');
-  const status2 = document.getElementById('status-button2');
-  const buttonDoc = doc.data();
-  if (buttonDoc['button1']) {
-    status1.innerHTML = 'ON';
-  } else {
-    status1.innerHTML = 'OFF';
-  }
-  if (buttonDoc['button2']) {
-    status2.innerHTML = 'ON';
-  } else {
-    status2.innerHTML = 'OFF';
-  }
-}
+// function buttonListener(doc) {
+//   const status1 = document.getElementById('status-button1');
+//   const status2 = document.getElementById('status-button2');
+//   const buttonDoc = doc.data();
+//   if (buttonDoc['button1']) {
+//     status1.innerHTML = 'ON';
+//   } else {
+//     status1.innerHTML = 'OFF';
+//   }
+//   if (buttonDoc['button2']) {
+//     status2.innerHTML = 'ON';
+//   } else {
+//     status2.innerHTML = 'OFF';
+//   }
+// }
 
 function buildRack(rack) {
   let html = `<div class='rack'>
-  <button id="button-add-device-${rack.name}">Add Device</button>
-  <button id="button-remove-device-${rack.name}">Remove Device</button>
-  <p>${rack.name}</p>
-  <p>${rack.description}</p>
-  <p>${rack.room}</p>
-  <p>${rack.numSlots} Slots</p>
+  <button id="button-add-device-${rack.data.name}">Install Device</button>
+  <button id="button-remove-device-${rack.data.name}">Remove Device</button>
+  <p>${rack.data.name}</p>
+  <p>${rack.data.description}</p>
+  <p>${rack.data.room}</p>
+  <p>${rack.data.numSlots} Slots</p>
   <div class="rack-sides">
-  <table><tr><td>Slot</td><td>Device</td></tr>
+  <table><tr><td class="header">Front</td><tr>
+  <tr><td>Slot</td><td>Device</td></tr>
   `;
-  for (let i = rack.numSlots; i > 0; i--) {
-    html += `<tr><td>${i}</td><td>${rack.frontRackDevices[i] || 'Empty'}</td></tr>`;
+  for (let i = rack.data.numSlots; i > 0; i--) {
+    html += `<tr><td>${i}</td><td>${rack.data.frontRackDevices[i] || 'Empty'}</td></tr>`;
   }
 
   html += `</table>
-  <table><tr><td>Slot</td><td>Device</td></tr>`;
+  <table><tr><td class="header">Rear</td><tr>
+  <tr><td>Slot</td><td>Device</td></tr>`;
 
-  for (let i = rack.numSlots; i > 0; i--) {
-    html += `<tr><td>${i}</td><td>${rack.rearRackDevices[i] || 'Empty'}</td></tr>`;
+  for (let i = rack.data.numSlots; i > 0; i--) {
+    html += `<tr><td>${i}</td><td>${rack.data.rearRackDevices[i] || 'Empty'}</td></tr>`;
   }
 
   html += `</table></div></div>`
@@ -464,7 +748,14 @@ function buildDeviceInputs(devices) {
   var html;
   console.log(devices);
   for (let i = 0; i < devices.length; i++) {
-    html += `<option value='${devices[i].name}'>${devices[i].name}</option>`;
+    html += `<option value='${devices[i].data.name}'>${devices[i].data.name}</option>`;
+  }
+  if (devices.length < 1) {
+    html = `<option value='null'>None</option>`;
   }
   return html;
+}
+
+function installDevice(rack) {
+
 }

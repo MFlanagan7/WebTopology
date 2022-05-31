@@ -17,7 +17,7 @@ export function home_page() {
     return;
   }
 
-  let html = `<h3 class="d-flex justify-content-center m-3">Home<h3>
+  let html = `<h3 class="d-flex justify-content-center m-3">Home</h3>
   <br>
   <p class="home-page">View the <a href="https://trello.com/b/RTfWOsQ2/web-topology" target="_blank">Task Board</a></p>
   <h4>Changelog</h4>`;
