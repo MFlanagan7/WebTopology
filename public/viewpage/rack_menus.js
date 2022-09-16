@@ -39,19 +39,19 @@ export async function rack_menus_page() {
     return;
   }
 
-  const Room1 = new Room('Room 1', 'This is room 1');
-  const Rack1 = new Rack('Rack 1', 'This is rack 1', "Room 15", 48);
+  // const Room1 = new Room('Room 1', 'This is room 1');
+  // const Rack1 = new Rack('Rack 1', 'This is rack 1', "Room 15", 48);
 
-  const Device1 = new Device('Device1', 'This is device 1', 24, 'Dell', 'Model 29A', 'Router', 'Dell-29A-Router-Device1');
-  const Device2 = new Device('Device2', 'This is device 2', 48, 'Cisco', 'Model Switch 52', 'Switch', 'Cisco-S52-Switch-Device2');
+  // const Device1 = new Device('Device1', 'This is device 1', 24, 'Dell', 'Model 29A', 'Router', 'Dell-29A-Router-Device1');
+  // const Device2 = new Device('Device2', 'This is device 2', 48, 'Cisco', 'Model Switch 52', 'Switch', 'Cisco-S52-Switch-Device2');
 
-  const Connection1 = new Connection(Device1.name, 12, Device2.name, 15)
+  // const Connection1 = new Connection(Device1.name, 12, Device2.name, 15)
 
-  Room1.addRack(Rack1);
-  Rack1.addDevice(Device1, 'front', 12);
-  Rack1.addDevice(Device2, 'rear', 15);
-  Device1.addConnection(Connection1, 12);
-  Device2.addConnection(Connection1, 15);
+  // Room1.addRack(Rack1);
+  // Rack1.addDevice(Device1, 'front', 12);
+  // Rack1.addDevice(Device2, 'rear', 15);
+  // Device1.addConnection(Connection1, 12);
+  // Device2.addConnection(Connection1, 15);
   
 
   // console.log(Room1);
