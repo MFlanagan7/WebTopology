@@ -7,6 +7,7 @@ export const changes = [
     'Created UI components to display racks and populate with device data',
     'Implemented button functionality for creating new racks, new devices, and new connections - needs further testing - adding/removing devices to racks not implemented yet',
     'Added test user account link',
+    'Adding and removing devices to and from racks implemented',
   ]
   
   export default changes
