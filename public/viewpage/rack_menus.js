@@ -30,7 +30,7 @@ export function addEventListeners() {
   // });
 
 }
-
+ 
 export async function rack_menus_page() {
   if (!Auth.currentUser) {
     Elements.root.innerHTML = `
