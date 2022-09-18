@@ -38,7 +38,7 @@ export async function rack_menus_page() {
     `;
     return;
   }
-
+ 
   // const Room1 = new Room('Room 1', 'This is room 1');
   // const Rack1 = new Rack('Rack 1', 'This is rack 1', "Room 15", 48);
 
